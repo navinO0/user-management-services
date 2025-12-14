@@ -1,0 +1,29 @@
+{
+  "name": "user-management",
+  "version": "1.0.0",
+  "description": "Reusable user authentication and management microservice",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": ["authentication", "user-management", "microservice", "fastify"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "fastify": "^4.25.0",
+    "@fastify/cors": "^8.4.0",
+    "@fastify/sensible": "^5.5.0",
+    "@fastify/formbody": "^7.4.0",
+    "knex": "^3.0.0",
+    "pg": "^8.11.0",
+    "redis": "^4.6.0",
+    "bcrypt": "^5.1.1",
+    "jsonwebtoken": "^9.0.2",
+    "qrcode": "^1.5.3",
+    "uuid": "^9.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  }
+}
