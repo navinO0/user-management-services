@@ -13,9 +13,10 @@ module.exports = {
     // Database config
     DB_HOST: process.env.DB_HOST || 'localhost',
     DB_PORT: parseInt(process.env.DB_PORT) || 5432,
-    DB_NAME: process.env.DB_NAME || 'your_database',
+    DB_NAME: process.env.DB_DATABASE || process.env.DB_NAME || 'your_database',
     DB_USER: process.env.DB_USER || 'your_user',
     DB_PASSWORD: process.env.DB_PASSWORD || 'your_password',
+    DB_SSL: process.env.DB_SSL === 'true',
     
     // Redis config
     REDIS_HOST: process.env.REDIS_HOST || 'localhost',

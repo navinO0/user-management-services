@@ -12,7 +12,7 @@ async function setCacheValue(key, value, expiry = 3600) {
             throw new Error('Redis client not initialized');
         }
         if (expiry) {
-            await redisClient.setex(key, expiry, value);
+            await redisClient.set(key, value, 'EX', expiry);
         } else {
             await redisClient.set(key, value);
         }
