@@ -8,7 +8,7 @@ async function generateToken(app, userdata, device_info, config) {
         userdata.fingerprint = device_info.fingerprint;
         const token = jwt.sign(
             userdata,
-            config.JWT_SECRET,
+            config.SECURITY_KEYS.JWT_SECRET,
             { expiresIn: config.TOKEN_EXPIRY }
         );
         

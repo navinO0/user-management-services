@@ -15,7 +15,7 @@ async function CREATE_USER(request, reply) {
         const { username, password, email, mobile, first_name, last_name, middle_name, profile_photo } = decryptObject(
             body,
             ['username', 'email', 'mobile', 'first_name', 'middle_name', "password", 'last_name'],
-            this.config
+            this.CONFIG
         );
         
         const user = await getUserDetails(this.knex, username);
@@ -62,7 +62,7 @@ async function CREATE_USER(request, reply) {
         };
         
         const userCreateResponse = await createUser(this.knex, userDetails);
-        const token = await generateToken(this, userCreateResponse, device_info, this.config);
+        const token = await generateToken(this, userCreateResponse, device_info, this.CONFIG);
         return replySuccess(reply, { token });
     } catch (err) {
         return replyError(reply, { message: err.message });
@@ -76,7 +76,7 @@ async function LOGIN(request, reply) {
         const { username, password } = decryptObject(
             body,
             ['username', 'password'],
-            this.config
+            this.CONFIG
         );
         
         const user = await getUserDetails(this.knex, username);
@@ -90,7 +90,7 @@ async function LOGIN(request, reply) {
         }
         
         delete user.password;
-        const token = await generateToken(this, user, device_info, this.config);
+        const token = await generateToken(this, user, device_info, this.CONFIG);
         return replySuccess(reply, { token });
     } catch (err) {
         return replyError(reply, { message: err.message });
@@ -101,7 +101,7 @@ async function GET_CODE(request, reply) {
     try {
         const token = request.token;
         const code = generateUniqueCode();
-        await setCacheValue(code, token, this.config.QR_CODE_EXPIRY);
+        await setCacheValue(code, token, this.CONFIG.QR_CODE_EXPIRY);
         return replySuccess(reply, { code });
     } catch (err) {
         return replyError(reply, { message: err.message });
@@ -118,10 +118,10 @@ async function LOGIN_WITH_CODE(request, reply) {
             return replyError(reply, { message: 'Invalid code or code has expired' });
         }
         
-        const userdata = await decodeToken(cachedData_code, this.config);
+        const userdata = await decodeToken(cachedData_code, this.CONFIG);
         delete userdata.exp;
         
-        const cachedData = await getCacheValue(userdata.username + this.config.DEVICES_KEY);
+        const cachedData = await getCacheValue(userdata.username + this.CONFIG.DEVICES_KEY);
         if (cachedData) {
             const devices = JSON.parse(cachedData);
             if (devices.length > 2) {
@@ -129,14 +129,14 @@ async function LOGIN_WITH_CODE(request, reply) {
             }
             const exist = devices.find(e => e.fingerprint === device_info.fingerprint);
             if (exist) {
-                const token = await generateToken(this, userdata, device_info, this.config);
+                const token = await generateToken(this, userdata, device_info, this.CONFIG);
                 return replySuccess(reply, { message: 'Login success', token });
             }
             devices.push(device_info);
-            await setCacheValue(userdata.username + this.config.DEVICES_KEY, JSON.stringify(devices));
+            await setCacheValue(userdata.username + this.CONFIG.DEVICES_KEY, JSON.stringify(devices));
         }
         
-        const token = await generateToken(this, userdata, device_info, this.config);
+        const token = await generateToken(this, userdata, device_info, this.CONFIG);
         return replySuccess(reply, { message: 'Login success', token });
     } catch (err) {
         return replyError(reply, { message: err.message });
@@ -160,14 +160,14 @@ async function REGISTER_GOOGLE_AUTH(request, reply) {
         const { username, email, first_name, profile_photo } = decryptObject(
             body,
             ['username', 'email', 'first_name'],
-            this.config
+            this.CONFIG
         );
         
         let user = await getUserDetails(this.knex, username);
         let token;
         
         if (user && user.username) {
-            token = await generateToken(this, { username, email, first_name, id: user.id }, device_info, this.config);
+            token = await generateToken(this, { username, email, first_name, id: user.id }, device_info, this.CONFIG);
             return replySuccess(reply, { message: "User already registered", token });
         }
         
@@ -180,7 +180,7 @@ async function REGISTER_GOOGLE_AUTH(request, reply) {
         };
         
         user = await createUser(this.knex, userDetails);
-        token = await generateToken(this, { username, email, first_name, id: user.id }, device_info, this.config);
+        token = await generateToken(this, { username, email, first_name, id: user.id }, device_info, this.CONFIG);
         return replySuccess(reply, { message: 'success', token });
     } catch (err) {
         return replyError(reply, { message: err.message });
@@ -190,8 +190,8 @@ async function REGISTER_GOOGLE_AUTH(request, reply) {
 async function GET_DEVICES(request, reply) {
     try {
         const token = request.token;
-        const userdata = await decodeToken(token, this.config);
-        const cachedData = await getCacheValue(userdata.username + this.config.DEVICES_KEY);
+        const userdata = await decodeToken(token, this.CONFIG);
+        const cachedData = await getCacheValue(userdata.username + this.CONFIG.DEVICES_KEY);
         const devices = JSON.parse(cachedData) || [];
         return replySuccess(reply, { devices });
     } catch (err) {
@@ -203,8 +203,8 @@ async function REMOVE_DEVICE(request, reply) {
     try {
         const token = request.token;
         const is_remove_all_devices = request.body.is_remove_all_devices;
-        const userdata = await decodeToken(token, this.config);
-        const cachedData = await getCacheValue(userdata.username + this.config.DEVICES_KEY);
+        const userdata = await decodeToken(token, this.CONFIG);
+        const cachedData = await getCacheValue(userdata.username + this.CONFIG.DEVICES_KEY);
         const devices = JSON.parse(cachedData);
         
         if (!is_remove_all_devices && !devices.find(e => e.fingerprint === request.body.device_fingerprint)) {
@@ -212,10 +212,10 @@ async function REMOVE_DEVICE(request, reply) {
         }
         
         if (is_remove_all_devices) {
-            await setCacheValue(userdata.username + this.config.DEVICES_KEY, JSON.stringify([]));
+            await setCacheValue(userdata.username + this.CONFIG.DEVICES_KEY, JSON.stringify([]));
         } else {
             await setCacheValue(
-                userdata.username + this.config.DEVICES_KEY, 
+                userdata.username + this.CONFIG.DEVICES_KEY, 
                 JSON.stringify(devices.filter(e => e.fingerprint !== request.body.device_fingerprint))
             );
         }

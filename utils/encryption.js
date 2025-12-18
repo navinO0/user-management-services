@@ -4,7 +4,7 @@ const crypto = require("crypto");
 
 function decryptData(encryptedString, config) {
     try {
-        const aesSecKey = Buffer.from(config.ENCRYPTION_KEY_HEX, "hex");
+        const aesSecKey = Buffer.from(config.SECURITY_KEYS.ENCRYPTION_KEY_HEX, "hex");
         const [ivBase64, encryptedBase64] = encryptedString.split(":");
         
         if (!ivBase64 || !encryptedBase64) {

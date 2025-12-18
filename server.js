@@ -6,7 +6,7 @@ const sensible = require('@fastify/sensible');
 const formbody = require('@fastify/formbody');
 const knex = require('knex');
 const redis = require('redis');
-const config = require('./config');
+const config = require('../core/config');
 const authRoutes = require('./routes/authRoutes');
 const { initializeRedis } = require('./utils/redisClient');
 
