@@ -31,7 +31,8 @@ async function startServer() {
             port: config.DB_PORT,
             user: config.DB_USER,
             password: config.DB_PASSWORD,
-            database: config.DB_NAME
+            database: config.DB_NAME,
+            ssl: config.DB_SSL ? { rejectUnauthorized: false } : false
         }
     });
     
@@ -60,6 +61,14 @@ async function startServer() {
     try {
         await app.listen({ port: config.PORT, host: '0.0.0.0' });
         app.log.info(`Server running on port ${config.PORT}`);
+
+        const closeGracefully = async (signal) => {
+            app.log.info(`Received signal to terminate: ${signal}`);
+            await app.close();
+            process.exit(0);
+        };
+        process.on('SIGINT', () => closeGracefully('SIGINT'));
+        process.on('SIGTERM', () => closeGracefully('SIGTERM'));
     } catch (err) {
         app.log.error(err);
         process.exit(1);

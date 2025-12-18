@@ -98,6 +98,16 @@ async function validateAccessToken(request, reply, app, config) {
                 message: "Authorization required" 
             });
         }
+
+        // Check if token exists in cache (Single session enforcement or revocation check)
+        const cachedToken = await getCacheValue(decoded.username + "_token");
+        if (!cachedToken || cachedToken !== token) {
+             return reply.code(401).send({ 
+                code: 401, 
+                type: 'error', 
+                message: "Authorization required: Session expired or invalid" 
+            });
+        }
         
         const cachedData = await getCacheValue(decoded.username + config.DEVICES_KEY);
         if (!cachedData) {
